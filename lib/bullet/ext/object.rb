@@ -4,21 +4,22 @@ module Bullet
   module Ext
     module Object
       refine ::Object do
-        attr_writer :bullet_key, :bullet_primary_key_value
-
         def bullet_key
-          @bullet_key ||= "#{self.class}:#{bullet_primary_key_value}"
+          "#{self.class}:#{bullet_primary_key_value}"
         end
 
         def bullet_primary_key_value
-          @bullet_primary_key_value ||=
-            begin
-              return if respond_to?(:persisted?) && !persisted?
+          return if respond_to?(:persisted?) && !persisted?
 
-              primary_key = self.class.try(:primary_keys) || self.class.try(:primary_key) || :id
+          if self.class.respond_to?(:primary_keys) && self.class.primary_keys
+            primary_key = self.class.primary_keys
+          elsif self.class.respond_to?(:primary_key) && self.class.primary_key
+            primary_key = self.class.primary_key
+          else
+            primary_key = :id
+          end
 
-              bullet_join_potential_composite_primary_key(primary_key)
-            end
+          bullet_join_potential_composite_primary_key(primary_key)
         end
 
         private
