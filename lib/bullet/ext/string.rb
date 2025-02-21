@@ -5,8 +5,7 @@ module Bullet
     module String
       refine ::String do
         def bullet_class_name
-          last_colon = self.rindex(':')
-          last_colon ? self[0...last_colon].dup : self.dup
+          sub(/:[^:]*?$/, '')
         end
       end
     end
